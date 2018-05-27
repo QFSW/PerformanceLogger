@@ -3,6 +3,8 @@
 This logger only requires you to start and end the logger, the rest is handled for you.
 Once activated, the logger will record the frametime for every frame; on dump, a summary will be generated, a long with pulled system specs, and the full log.
 
+Include the namespace QFSW.PL to gain access to the performance logger
+
 To begin, call `PerformanceLogger.StartLogger();`
 
 To end and dump the logger, call `EndLogger(string Path, string ExtraInfo = "", bool Async = true, Action CompletionCallback = null)`
