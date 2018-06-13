@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.IO;
 using System.Threading;
+using QFSW.PL.Internal;
 
 namespace QFSW.PL
 {
@@ -160,8 +161,13 @@ namespace QFSW.PL
             float TotalFrameTime = FrameTimes.Sum((KeyValuePair<float, float> x) => 1000f / x.Value < FPSCutoff ? x.Value : 0f);
 
             //Creates analysis string
+#if NET_4_6
             string AnalysisString = $"FPS < {FPSCutoff}: {FrameCount} frame{(FrameCount == 1 ? "" : "s")} ({(100 * FrameCount / (float)FrameTimes.Count).RoundToSigFigs(3)}%)";
             AnalysisString += $", {(TotalFrameTime / 1000).RoundToSigFigs(4)}s ({(0.1f * TotalFrameTime / FrameTimes.Keys.Max()).RoundToSigFigs(3)}%)";
+#else
+            string AnalysisString = "FPS < " + FPSCutoff.ToString() + ": " + FrameCount.ToString() + " frame" + (FrameCount == 1 ? "" : "s") + "(" + (100 * FrameCount / (float)FrameTimes.Count).RoundToSigFigs(3).ToString() + "%)";
+            AnalysisString += ", " + (TotalFrameTime / 1000).RoundToSigFigs(4).ToString() + "s (" + (0.1f * TotalFrameTime / FrameTimes.Keys.Max()).RoundToSigFigs(3) + "%)";
+#endif
             return AnalysisString;
         }
 
@@ -188,6 +194,7 @@ namespace QFSW.PL
 
             //Adds analysis to logfile
             string DataString = ExtraInfo;
+#if NET_4_6
             DataString += $"\n\n\nLog duration: {LogDuration}s";
             DataString += $"\nTotal frames: {FrameTimes.Count}";
             DataString += $"\n\nAverage frametime: {AverageFrameTime.RoundToSigFigs(4)}ms, {AverageFPS.RoundToSigFigs(4)} FPS";
@@ -202,6 +209,22 @@ namespace QFSW.PL
             DataString += $"\n{AnalyseFramesUnderFPS(15)}";
             DataString += $"\n{AnalyseFramesUnderFPS(5)}";
             DataString += $"\n{AnalyseFramesUnderFPS(1)}";
+#else
+            DataString += "\n\n\nLog duration: " + LogDuration.ToString() + "s";
+            DataString += "\nTotal frames: " + FrameTimes.Count.ToString();
+            DataString += "\n\nAverage frametime: " + AverageFrameTime.RoundToSigFigs(4).ToString() + "ms, " + AverageFPS.RoundToSigFigs(4).ToString() + " FPS";
+            DataString += "\nRMS frametime: " + RMSFrameTime.RoundToSigFigs(4).ToString() + "ms, " + RMSFPS.RoundToSigFigs(4).ToString() + " FPS";
+            DataString += "\nMinimum frametime: " + MinFrameTime.RoundToSigFigs(4).ToString() + "ms, " + MaxFPS.RoundToSigFigs(4).ToString() + " FPS";
+            DataString += "\nMaximum frametime: " + MaxFrameTime.RoundToSigFigs(4).ToString() + "ms, " + MinFPS.RoundToSigFigs(4).ToString() + " FPS";
+            DataString += "\np10%: " + p10FrameTime.RoundToSigFigs(4).ToString() + "ms, " + p10FPS.RoundToSigFigs(4).ToString() + " FPS";
+            DataString += "\np90%: " + p90FrameTime.RoundToSigFigs(4).ToString() + "ms, " + p90FPS.RoundToSigFigs(4).ToString() + " FPS";
+            DataString += "\n\n" + AnalyseFramesUnderFPS(120);
+            DataString += "\n" + AnalyseFramesUnderFPS(60);
+            DataString += "\n" + AnalyseFramesUnderFPS(30);
+            DataString += "\n" + AnalyseFramesUnderFPS(15);
+            DataString += "\n" + AnalyseFramesUnderFPS(5);
+            DataString += "\n" + AnalyseFramesUnderFPS(1);
+#endif
 
             //Adds system specs to logfile
             if (string.IsNullOrEmpty(SystemSpecs)) { GetSystemSpecs(); }
@@ -219,7 +242,11 @@ namespace QFSW.PL
                 LogFile.Write("\n\n\n\nCustom events:");
                 for (int i = 0; i < LoggedCustomEvents.Count; i++)
                 {
+#if NET_4_6
                     LogFile.Write($"\n{LoggedCustomEventsTimestamps[i]}, {LoggedCustomEvents[i]}");
+#else
+                    LogFile.Write("\n" + LoggedCustomEventsTimestamps[i].ToString() + ", " + LoggedCustomEvents[i].ToString());
+#endif
                 }
             }
 
@@ -227,7 +254,11 @@ namespace QFSW.PL
             LogFile.Write("\n\n\nFrametimes:");
             foreach (KeyValuePair<float, float> Frame in FrameTimes)
             {
+#if NET_4_6
                 LogFile.Write($"\n{Frame.Key}, {Frame.Value}");
+#else
+                LogFile.Write("\n" + Frame.Key.ToString() + ", " + Frame.Value.ToString());
+#endif
             }
 
             //Closes file and ends
@@ -242,6 +273,7 @@ namespace QFSW.PL
         private string GetSystemSpecs()
         {
             SystemSpecs = "System Specifications:";
+#if NET_4_6
             SystemSpecs += $"\n\n{SystemInfo.deviceName}";
             SystemSpecs += $"\n{SystemInfo.deviceModel}";
             SystemSpecs += $"\n{SystemInfo.deviceType}";
@@ -251,30 +283,44 @@ namespace QFSW.PL
             SystemSpecs += $"\nGPU: {SystemInfo.graphicsDeviceName}, {(SystemInfo.graphicsMultiThreaded ? "Multithreaded" : "Singlethreaded")}";
             SystemSpecs += $"\nGraphics API: {SystemInfo.graphicsDeviceType}, {SystemInfo.graphicsDeviceVersion}";
             SystemSpecs += $"\nVRAM: {SystemInfo.graphicsMemorySize}MB";
+#else
+            SystemSpecs += "\n\n" + SystemInfo.deviceName;
+            SystemSpecs += "\n" + SystemInfo.deviceModel;
+            SystemSpecs += "\n" + SystemInfo.deviceType;
+            SystemSpecs += "\n" + Screen.width.ToString() + " x " + Screen.height.ToString() +" @" + Screen.currentResolution.refreshRate.ToString() + "Hz - " + (Screen.fullScreen ? "Fullscreen" : "Windowed");
+            SystemSpecs += "\n\nCPU: " + SystemInfo.processorType + ", " + SystemInfo.processorCount.ToString() + "C, " + SystemInfo.processorFrequency.ToString() + "MHz";
+            SystemSpecs += "\nRAM: " + SystemInfo.systemMemorySize.ToString() + "MB";
+            SystemSpecs += "\nGPU: " + SystemInfo.graphicsDeviceName + ", " + (SystemInfo.graphicsMultiThreaded ? "Multithreaded" : "Singlethreaded");
+            SystemSpecs += "\nGraphics API: " + SystemInfo.graphicsDeviceType + ", " + SystemInfo.graphicsDeviceVersion;
+            SystemSpecs += "\nVRAM: " + SystemInfo.graphicsMemorySize + "MB";
+#endif
             return SystemSpecs;
         }
     }
 
-    /// <summary>Extends the float class.</summary>
-    public static class FloatExtension
+    namespace Internal
     {
-        /// <summary>Rounds the floating point value to n significant figures.</summary>
-        /// <param name="n">The number of signiciant figures.</param>
-        /// <param name="Num">Rounded float.</param>
-        public static float RoundToSigFigs(this float Num, int n)
+        /// <summary>Extends the float class.</summary>
+        public static class FloatExtension
         {
-            if (Num == 0) { return Num; }
+            /// <summary>Rounds the floating point value to n significant figures.</summary>
+            /// <param name="n">The number of signiciant figures.</param>
+            /// <param name="Num">Rounded float.</param>
+            public static float RoundToSigFigs(this float Num, int n)
+            {
+                if (Num == 0) { return Num; }
 
-            int CurrentSigFigs = (int)Math.Log10(Math.Abs(Num)) + 1;
+                int CurrentSigFigs = (int)Math.Log10(Math.Abs(Num)) + 1;
 
-            if (n < 1) { return Num; }
+                if (n < 1) { return Num; }
 
-            //Reduces sig figs
-            Num /= (float)Math.Pow(10, CurrentSigFigs - n);
-            Num = (int)Math.Round(Num);
-            Num *= (float)Math.Pow(10, CurrentSigFigs - n);
+                //Reduces sig figs
+                Num /= (float)Math.Pow(10, CurrentSigFigs - n);
+                Num = (int)Math.Round(Num);
+                Num *= (float)Math.Pow(10, CurrentSigFigs - n);
 
-            return Num;
+                return Num;
+            }
         }
     }
 }
