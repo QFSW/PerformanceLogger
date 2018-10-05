@@ -19,3 +19,10 @@ If you want to log a custom event, such as spawning a boss, use `PerformanceLogg
 
 An example of the log file can be seen here:
 ![alt text](https://pbs.twimg.com/media/DeMO4raXUAAlMHE.jpg:large)
+
+# Donate
+If you enjoyed this product and would like to see more, please consider donating or purchasing some of our other products.
+ - [Unity Asset Store Products](https://assetstore.unity.com/publishers/18921)
+ - [Steam Games](https://store.steampowered.com/developer/QFSW)
+ - [Patreon](https://www.patreon.com/QFSW)
+ - [PayPal](https://www.paypal.me/qfsw)
