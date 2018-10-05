@@ -239,7 +239,7 @@ namespace QFSW.PL
 #if NET_4_6
                 logFile.Write($"\n{frame.Key}, {frame.Value}");
 #else
-                LogFile.Write("\n" + frame.Key.ToString() + ", " + frame.Value.ToString());
+                logFile.Write("\n" + frame.Key.ToString() + ", " + frame.Value.ToString());
 #endif
             }
 
